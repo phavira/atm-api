@@ -71,13 +71,6 @@ def changePasswordself():
     return customerController().changePasswordSelf(request.args.to_dict())
 
 
-@app.route(f'{prefix}/check-balance', methods=["GET"])
-@Authentication.roleCustomer
-@ChangePasswordCustomer.request
-def changePasswordself():
-    return customerController().changePasswordSelf(request.args.to_dict())
-
-
 
 if (__name__ == '__main__'):
-    app.run(debug=True, )
+    app.run(debug=True,port=82)

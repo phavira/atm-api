@@ -10,7 +10,7 @@ class responseTemplate:
         self.paginate = keyargs.get("paginate", None)
 
     def json(self):
-        if self.status_code is 200:
+        if self.status_code == 200:
             status = "OK"
         else:
             status = "error"
