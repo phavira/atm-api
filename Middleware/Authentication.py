@@ -77,10 +77,12 @@ class Authentication:
         data = account(result[0]).toMap()
 
         data['token'] = jwt.encode(
-            {"role": role,
+            {
+             "role": role,
              "user": request.get('username'),
              "id": result[0][0],
-             'exp': datetime.datetime.utcnow() + relativedelta(months=1)},
+             'exp': datetime.datetime.utcnow() + relativedelta(months=1)
+             },
             Authentication.secretsKey, algorithm="HS256")
 
         return responseTemplate(message="Login Success", data=data).json()
