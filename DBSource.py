@@ -6,9 +6,9 @@ class DBsource:
 
     def __init__(self):
         self.connector = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="root",
+            host="plusmalls.com",
+            user="vira_db",
+            password="1562572D3431F56F",
             database="atm")
 
     def select(self, statement):
