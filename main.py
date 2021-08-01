@@ -12,9 +12,8 @@ app = Flask(__name__)
 prefix = "/api"
 
 
-@app.route(f'{prefix}/')
+@app.route('/')
 def root():
-    return 'The URL for this page is {}'.format(url_for('root'))
     return "welcome to Python API"
 
 
@@ -71,6 +70,5 @@ def changePasswordself():
     return customerController().changePasswordSelf(request.args.to_dict())
 
 
-
 if (__name__ == '__main__'):
-    app.run(debug=True,port=82)
+    app.run(debug=True, port=82, host="0.0.0.0")
