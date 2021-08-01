@@ -73,7 +73,6 @@ class Authentication:
 
         if len(result) <= 0:
             return responseTemplate(message="The username or password was Incorrect.", status_code=403).json()
-        print(result)
         data = account(result[0]).toMap()
 
         data['token'] = jwt.encode(
