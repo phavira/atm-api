@@ -5,8 +5,10 @@ from flask import Flask, make_response, request, jsonify, url_for
 from Controller.customerController import customerController
 from Middleware.Authentication import Authentication
 from Request.ChangePasswordCustomerRequest import ChangePasswordCustomer
+from Request.depositRequest import deposit
 from Request.loginRequest import login
 from Request.storeCustomerRequest import storeCustomer
+from Request.withdrawalRequest import withdrawal
 
 app = Flask(__name__)
 prefix = "/api"
@@ -68,6 +70,26 @@ def UpdateCustomer(id):
 @ChangePasswordCustomer.request
 def changePasswordself():
     return customerController().changePasswordSelf(request.args.to_dict())
+
+
+@app.route(f'{prefix}/check-balance', methods=['GET'])
+@Authentication.roleCustomer
+def checkBalance():
+    return customerController().checkBalance()
+
+
+@app.route(f'{prefix}/deposit', methods=['POST'])
+@Authentication.roleCustomer
+@deposit.request
+def deposit():
+    return customerController().deposit(request.args.to_dict())
+
+
+@app.route(f'{prefix}/withdrawal', methods=['POST'])
+@Authentication.roleCustomer
+@withdrawal.request
+def withdrawal():
+    return customerController().withdrawal(request.args.to_dict())
 
 
 if (__name__ == '__main__'):

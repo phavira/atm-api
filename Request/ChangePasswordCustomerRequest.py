@@ -23,6 +23,7 @@ class ChangePasswordCustomer:
 
                 if (request.args.get('confirm_password') != request.args.get('new_password')):
                     data['confirm_password'] = "The confirm password and new password not match"
+
                 check = bcrypt.checkpw(request.args.get('current_password').encode(), auth.user.password.encode())
                 if not check:
                     data['current_password'] = "The confirm password and new password not match"

@@ -1,5 +1,6 @@
 import math
 from datetime import datetime
+from decimal import Decimal
 
 import bcrypt
 
@@ -112,3 +113,61 @@ class customerController:
 
     def changePasswordSelf(self, request: dict):
         return self.changePassword(auth.user.customer_id, {"password": request.get('new_password')})
+
+    def checkBalance(self):
+        db = DBsource()
+        result = db.select("select cs.id,cs.name,cs.account_no,cs.balance,us.username,us.role,us.lang,us.created_at "
+                           "from customers cs "
+                           "join users us on us.id = cs.user_id "
+                           f"where us.active=1 and cs.id = {auth.user.customer_id}")
+        cu = customer(result[0])
+        print(cu.toMap())
+        data = {
+            'balance': str(auth.user.balance),
+            'account_no': cu.account_no,
+            "name": cu.name
+        }
+        return responseTemplate(message="Get Balance Success", data=data).json()
+
+    def updateBalance(self, request: dict, type="in"):
+        db = DBsource()
+        balance = Decimal(request.get("balance"))
+        val = (datetime.now(), type, balance, auth.user.id)
+        statment = 'insert into cash_transaction (ref_name,date,type,amount,user_id) values ("self deposit with ATM",%s,%s,%s, %s)'
+        result = db.insert(statment, val, commit=False)
+        if not result:
+            db.connector.rollback()
+            raise ErrorMessage(message="Store Balance unsuccessful", code=403)
+
+        currentBalance = auth.user.balance
+        if type == "in":
+            currentBalance = auth.user.balance + balance
+        elif type == "out":
+            currentBalance = auth.user.balance - balance
+
+        statment = f'update customers set balance = {currentBalance} where id = {auth.user.customer_id}'
+        result = db.update(statment, commit=False)
+        if not result:
+            db.connector.rollback()
+            raise ErrorMessage(message="set Balance unsuccessful", code=403)
+        db.connector.commit()
+
+        return True
+
+    def deposit(self, request):
+        try:
+            result = self.updateBalance(request)
+            if not result:
+                return responseTemplate(message="Your Deposit Unsuccessful.", status_code=403).json()
+            return responseTemplate(message="Your Deposit Successful.").json()
+        except ErrorMessage as e:
+            return ErrorMessage.response(e)
+
+    def withdrawal(self, request):
+        try:
+            result = self.updateBalance(request, "out")
+            if not result:
+                return responseTemplate(message="Your withdrawal Unsuccessful.", status_code=403).json()
+            return responseTemplate(message="Your withdrawal Successful.").json()
+        except ErrorMessage as e:
+            return ErrorMessage.response(e)
