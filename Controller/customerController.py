@@ -9,7 +9,7 @@ from flask import make_response, jsonify
 
 from Exception import ErrorMessage
 from Hash import Hash
-from Model.customer import customer
+from Model.customer import customer, customerOnly
 from Model.paginate import paginate
 from responseTemplate import responseTemplate
 import Model.auth as auth
@@ -132,8 +132,12 @@ class customerController:
     def updateBalance(self, request: dict, type="in"):
         db = DBsource()
         balance = Decimal(request.get("balance"))
-        val = (datetime.now(), type, balance, auth.user.id)
-        statment = 'insert into cash_transaction (ref_name,date,type,amount,user_id) values ("self deposit with ATM",%s,%s,%s, %s)'
+        if type == "in":
+            reftxt = "self deposit with ATM"
+        else:
+            reftxt = "self withdrawal with ATM"
+        val = (reftxt, datetime.now(), type, balance, auth.user.id)
+        statment = 'insert into cash_transaction (ref_name,date,type,amount,user_id) values ("%s",%s,%s,%s, %s)'
         result = db.insert(statment, val, commit=False)
         if not result:
             db.connector.rollback()
@@ -171,3 +175,39 @@ class customerController:
             return responseTemplate(message="Your withdrawal Successful.").json()
         except ErrorMessage as e:
             return ErrorMessage.response(e)
+
+    def transfer(self, request):
+        try:
+            db = DBsource()
+            balance = Decimal(request.get("balance"))
+            account_no = request.get('account_no')
+            user_transfer = db.select(f'select * from customers where account_no = {account_no} limit 1')
+            cs = customerOnly(user_transfer[0])
+
+            statment = 'insert into cash_transfer_transaction (ref_name,date,amount,reference_id,user_id) values ("transfer to %s",%s,%s,%s, %s)'
+            val = (cs.name, datetime.now(), balance, cs.user_id, auth.user.id)
+            result = db.insert(statment, val)
+            if not result:
+                raise ErrorMessage(message="Your Transfer Unsuccessful.", code=403)
+
+            return responseTemplate(message="Your Transfer Successful.").json()
+        except ErrorMessage as e:
+            ErrorMessage.response(e)
+
+    def billPayment(self, request):
+        try:
+            db = DBsource()
+            billing_no = request.get("billing_no")
+            billing_type = request.get('billing_type')
+            amount = Decimal(request.get('balance'))
+
+            statment = 'insert into bill_payment_transaction (ref_name,date,amount,billing_no,billing_type,user_id) values ("Pay bill to %s",%s,%s,%s,%s,%s)'
+            val = (billing_type, datetime.now(), amount, billing_no, billing_type, auth.user.id)
+            result = db.insert(statment, val)
+            if not result:
+                raise ErrorMessage(message="Your Pay Billing Unsuccessful.", code=403)
+
+            return responseTemplate(message="Your Pay Billing Successful.").json()
+
+        except ErrorMessage as e:
+            ErrorMessage.response(e)

@@ -23,3 +23,11 @@ class customer:
             "lang": self.lang,
             "created_at": self.created_at.strftime("%Y-%m-%d %H:%I:%S")
         }
+class customerOnly:
+    def __init__(self, arg):
+        self.id = arg[0]
+        self.name = arg[1]
+        self.account_no = arg[2]
+        self.balance = arg[3]
+        self.user_id = arg[4]
+        self.created_at = arg[5]

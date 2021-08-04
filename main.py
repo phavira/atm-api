@@ -5,6 +5,8 @@ from flask import Flask, make_response, request, jsonify, url_for
 from Controller.customerController import customerController
 from Middleware.Authentication import Authentication
 from Request.ChangePasswordCustomerRequest import ChangePasswordCustomer
+from Request.PayBillingRequest import PayBilling
+from Request.TransferRequest import Transfer
 from Request.depositRequest import deposit
 from Request.loginRequest import login
 from Request.storeCustomerRequest import storeCustomer
@@ -90,6 +92,20 @@ def deposit():
 @withdrawal.request
 def withdrawal():
     return customerController().withdrawal(request.args.to_dict())
+
+
+@app.route(f'{prefix}/transfer', methods=['POST'])
+@Authentication.roleCustomer
+@Transfer.request
+def transfer():
+    return customerController().transfer(request.args.to_dict())
+
+@app.route(f'{prefix}/pay-billing', methods=['POST'])
+@Authentication.roleCustomer
+@PayBilling.request
+def billPayment():
+    return customerController().billPayment(request.args.to_dict())
+
 
 
 if (__name__ == '__main__'):

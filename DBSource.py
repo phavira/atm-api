@@ -16,9 +16,12 @@ class DBsource:
         mycursor.execute(statement)
         return mycursor.fetchall()
 
-    def insert(self, statement, val, commit=True):
+    def insert(self, statement, val=None, commit=True):
         mycursor = self.connector.cursor()
-        mycursor.execute(statement, val)
+        if val is not None:
+            mycursor.execute(statement, val)
+        else:
+            mycursor.execute(statement)
         if commit:
             self.connector.commit()
         if mycursor.rowcount > 0:
