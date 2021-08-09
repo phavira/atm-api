@@ -11,8 +11,10 @@ from Request.depositRequest import deposit
 from Request.loginRequest import login
 from Request.storeCustomerRequest import storeCustomer
 from Request.withdrawalRequest import withdrawal
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 prefix = "/api"
 
 
