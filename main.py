@@ -112,4 +112,4 @@ def billPayment():
 
 
 if (__name__ == '__main__'):
-    app.run(debug=True, port=83, host="0.0.0.0")
+    app.run(debug=True, port=82, host="0.0.0.0")
