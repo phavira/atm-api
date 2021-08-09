@@ -33,14 +33,17 @@ def LoginCustomer():
     return Authentication.certificate(role="customer", request=request.args.to_dict())
 
 
-@app.route(f'{prefix}/customers', methods=["GET", "POST"])
+@app.route(f'{prefix}/customers', methods=["POST"])
+@storeCustomer.request
+def customers():
+    return customerController().store(request=request.args.to_dict())
+
+
+@app.route(f'{prefix}/customers', methods=["GET"])
 @Authentication.roleAdmin
 @storeCustomer.request
 def customers():
-    if request.method == 'GET':
-        return customerController().index(request=request.args.to_dict())
-    else:
-        return customerController().store(request=request.args.to_dict())
+    return customerController().index(request=request.args.to_dict())
 
 
 csPrefix = "customers"
@@ -100,12 +103,12 @@ def withdrawal():
 def transfer():
     return customerController().transfer(request.args.to_dict())
 
+
 @app.route(f'{prefix}/pay-billing', methods=['POST'])
 @Authentication.roleCustomer
 @PayBilling.request
 def billPayment():
     return customerController().billPayment(request.args.to_dict())
-
 
 
 if (__name__ == '__main__'):
