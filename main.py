@@ -35,7 +35,7 @@ def LoginCustomer():
 
 @app.route(f'{prefix}/customers', methods=["POST"])
 @storeCustomer.request
-def customers():
+def customersCreate():
     return customerController().store(request=request.args.to_dict())
 
 
