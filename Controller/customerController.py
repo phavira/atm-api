@@ -38,7 +38,6 @@ class customerController:
 
         result = self.db.select(stm)
         for item in result:
-            print(item)
             data.append(customer(item).toMap())
 
         return responseTemplate(data=data, message="Get Data Success", paginate=_pagiante.toMap()).json()

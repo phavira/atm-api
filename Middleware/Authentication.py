@@ -26,8 +26,8 @@ class Authentication:
                 if result.get('role') != "customer":
                     raise ErrorMessage("Permission Denied.", 403)
                 db = DBsource()
-                result = db.select(
-                    f'select * from customers join users on users.id = customers.user_id where users.id = "{result.get("id")}" limit 1')
+                result = db.select(f'select * from customers join users on users.id = customers.user_id where users.id = "{result.get("id")}" limit 1')
+                print(result)
                 Model.auth.user = Model.auth.authrity(result[0])
             except ErrorMessage as e:
                 return ErrorMessage.response(e)
@@ -70,9 +70,14 @@ class Authentication:
         result = db.select(
             f"select * from users "
             f"where username = '{request.get('username')}' and role = '{role}' limit 1")
-
+        print(Hash.make("123456"))
         if len(result) <= 0:
-            return responseTemplate(message="The username or password was Incorrect.", status_code=403).json()
+            return responseTemplate(message="The username was incorrect.", status_code=403).json()
+
+        if not Hash.check(request.get('password'),result[0][2]):
+            return responseTemplate(message="The password was incorrect.", status_code=403).json()
+
+
         data = account(result[0]).toMap()
 
         data['token'] = jwt.encode(
